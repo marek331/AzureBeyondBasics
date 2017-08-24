@@ -1,9 +1,12 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Queue;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace AzureBeyondBasics.Controllers
 {
@@ -12,7 +15,50 @@ namespace AzureBeyondBasics.Controllers
         // GET: Storage
         public ActionResult Index()
         {
-            return View();
+            // Retrieve the connection string
+            var storageConnectionString = ConfigurationManager.ConnectionStrings["StorageConnectionString"].ConnectionString;
+
+            // Retrieve the storage account from the connection string.
+            var storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+
+            // Create the table client.
+            var tableClient = storageAccount.CreateCloudTableClient();
+
+            // Create the CloudTable object that represents the "customer" table.
+            var table = tableClient.GetTableReference("customer");
+
+            // Create the table if it doesn't exist.
+            table.CreateIfNotExists();
+
+            // Create a new customer entity.
+            var customer = new CustomerEntity(Guid.NewGuid())
+            {
+                FirstName = "Walter",
+                LastName = "Harp",
+                Email = "Walter@contoso.com",
+                PhoneNumber = "425-555-0101"
+            };
+
+            // Create the TableOperation object that inserts the customer entity.
+            var insertOperation = TableOperation.Insert(customer);
+
+            // Execute the insert operation.
+            table.Execute(insertOperation);
+
+            //// Create the queue client.
+            //var queueClient = storageAccount.CreateCloudQueueClient();
+
+            //// Retrieve a reference to a container.
+            //var queue = queueClient.GetQueueReference("customerqueue");
+
+            //// Create the queue if it doesn't already exist
+            //queue.CreateIfNotExists();
+
+            //// Create a message and add it to the queue.
+            //var message = new CloudQueueMessage(customer.RowKey);
+            //queue.AddMessage(message);
+
+            return View(customer);
         }
     }
 
