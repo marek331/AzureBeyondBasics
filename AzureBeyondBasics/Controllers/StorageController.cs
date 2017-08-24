@@ -42,21 +42,21 @@ namespace AzureBeyondBasics.Controllers
             // Create the TableOperation object that inserts the customer entity.
             var insertOperation = TableOperation.Insert(customer);
 
-            // Execute the insert operation.
+            //Execute the insert operation.
             table.Execute(insertOperation);
 
-            //// Create the queue client.
-            //var queueClient = storageAccount.CreateCloudQueueClient();
+            // Create the queue client.
+            var queueClient = storageAccount.CreateCloudQueueClient();
 
-            //// Retrieve a reference to a container.
-            //var queue = queueClient.GetQueueReference("customerqueue");
+            // Retrieve a reference to a container.
+            var queue = queueClient.GetQueueReference("customerqueue");
 
-            //// Create the queue if it doesn't already exist
-            //queue.CreateIfNotExists();
+            // Create the queue if it doesn't already exist
+            queue.CreateIfNotExists();
 
-            //// Create a message and add it to the queue.
-            //var message = new CloudQueueMessage(customer.RowKey);
-            //queue.AddMessage(message);
+            // Create a message and add it to the queue.
+            var message = new CloudQueueMessage(customer.RowKey);
+            queue.AddMessage(message);
 
             return View(customer);
         }
